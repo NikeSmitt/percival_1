@@ -43,7 +43,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # Она видит, что заголовок и шапка страницы говорят о списках # неотложных дел
         self.assertIn('To-Do', self.browser.title)
         header_text = self.browser.find_element(By.TAG_NAME, 'h1').text
-        self.assertIn('To-Do', header_text)
+        self.assertIn('список неотложных дел', header_text)
         
         # Ей сразу же предлагается ввести элемент списка
         

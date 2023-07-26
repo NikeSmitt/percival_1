@@ -31,17 +31,6 @@ class HomePageTest(TestCase):
     def test_item_save_when_necessary(self):
         self.client.get('/')
         self.assertEqual(Item.objects.count(), 0)
-        
-    def test_displays_all_list_items(self):
-        Item.objects.create(text='Item_1')
-        Item.objects.create(text='Item_2')
-        
-        response = self.client.get('/')
-        
-        self.assertIn('Item_1', response.content.decode())
-        self.assertIn('Item_2', response.content.decode())
-        
-        
 
 
 class ItemModelTest(TestCase):
@@ -60,3 +49,20 @@ class ItemModelTest(TestCase):
         
         self.assertEqual(saved_items[0].text, 'The first (ever) list item')
         self.assertEqual(saved_items[1].text, 'Second list item')
+
+
+class ListViewTest(TestCase):
+    
+    def test_displays_all_items(self):
+        Item.objects.create(text='Item_1')
+        Item.objects.create(text='Item_2')
+        
+        response = self.client.get('/lists/single-list-in-world/')
+        
+        self.assertContains(response, 'Item_1')
+        self.assertContains(response, 'Item_2')
+    
+    def test_uses_list_template(self):
+        response = self.client.get('/lists/single-list-in-world/')
+        self.assertTemplateUsed(response, 'lists/list.html')
+        
