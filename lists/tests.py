@@ -26,7 +26,7 @@ class HomePageTest(TestCase):
         data = {'item_text': 'New item text'}
         response: HttpResponse = self.client.post('/', data)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
+        self.assertEqual(response['location'], '/lists/single-list-in-world/')
     
     def test_item_save_when_necessary(self):
         self.client.get('/')
