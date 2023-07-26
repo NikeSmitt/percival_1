@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
-service = ChromeService(executable_path=ChromeDriverManager().install())
+
 
 
 @tag('functional')
@@ -26,7 +26,10 @@ class NewVisitorTest(StaticLiveServerTestCase):
     
     @staticmethod
     def get_new_browser():
-        return webdriver.Chrome(service=service)
+        service = ChromeService(executable_path=ChromeDriverManager().install())
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')
+        return webdriver.Chrome(service=service, options=options)
     
     def check_list_item_in_table(self, item_text):
         # table = self.browser.find_element(By.ID, 'id_list_table')
