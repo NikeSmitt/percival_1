@@ -32,3 +32,9 @@ class FunctionalTest(StaticLiveServerTestCase):
         table = WebDriverWait(self.browser, timeout=5).until(lambda x: x.find_element(By.ID, 'id_list_table'))
         rows = table.find_elements(By.TAG_NAME, 'tr')
         self.assertIn(item_text, [row.text for row in rows])
+        
+    def wait_for(self, fn):
+        """Ожидаем элемент"""
+        
+        element = WebDriverWait(self.browser, timeout=5).until(fn)
+        return element
