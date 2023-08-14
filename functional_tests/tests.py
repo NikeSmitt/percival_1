@@ -141,7 +141,6 @@ class NewVisitorTest(StaticLiveServerTestCase):
             512,
             delta=10  # delta for 10 px
         )
-        
 
 
 if __name__ == '__main__':
