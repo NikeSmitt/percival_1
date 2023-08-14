@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from lists.models import Item, List
@@ -30,4 +31,17 @@ class ListAndItemModelTest(TestCase):
         self.assertEqual(saved_items[1].text, 'Second list item')
         self.assertEqual(saved_items[1].list, list_)
 
-
+    def test_cannot_save_empty_list_items(self):
+        """Тест: нельзя добавлять пустые элементы списка"""
+        list_ = List.objects.create()
+        item = Item(list=list_, text='')
+        with self.assertRaises(ValidationError):
+            item.save()
+            item.full_clean()
+        
+    def test_invalid_list_items_arent_saved(self):
+        """Тест: не допустимые элементы списка не сохраняются"""
+        self.client.post('/lists/new', data={'item_text': ''})
+        self.assertEqual(List.objects.count(), 0)
+        self.assertEqual(Item.objects.count(), 0)
+        
