@@ -43,6 +43,25 @@ class ListViewTest(TestCase):
         
         response = self.client.get(f'/lists/{correct_list.id}/')
         self.assertEqual(response.context['list'], correct_list)
+    
+    def test_can_save_a_POST_request_to_an_existing_list(self):
+        """Тест: сохраняем post-запрос в существующий список"""
+        other_list = List.objects.create()
+        correct_list = List.objects.create()
+        
+        self.client.post(f'/lists/{correct_list.id}/', data={'item_text': 'A new item for an existing list'})
+        
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.list, correct_list)
+        self.assertEqual(new_item.text, 'A new item for an existing list')
+    
+    def test_POST_redirects_to_list_view(self):
+        other_list = List.objects.create()
+        correct_list = List.objects.create()
+        
+        response = self.client.post(f'/lists/{correct_list.id}/', data={'item_text': 'A new item for an existing list'})
+        self.assertRedirects(response, f'/lists/{correct_list.id}/')
 
 
 class NewListTest(TestCase):
@@ -60,7 +79,7 @@ class NewListTest(TestCase):
         new_list = List.objects.first()
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, f'/lists/{new_list.id}/')
-        
+    
     def test_validation_errors_are_sent_back_to_home_page_template(self):
         """Тест: ошибка валидации отсылается назад в шаблон домашней страницы"""
         response = self.client.post('/lists/new', data={'item_text': ''})
@@ -68,35 +87,3 @@ class NewListTest(TestCase):
         self.assertTemplateUsed(response, 'lists/home.html')
         expected_error = escape('You can\'t have an empty list item')
         self.assertContains(response, expected_error)
-        
-    
-
-
-class NewItemTest(TestCase):
-    """Тест нового элемента списка"""
-    
-    def test_can_save_a_POST_request_to_an_existing_list(self):
-        """Тестируем сохранение элемента в существующий список"""
-        
-        correct_list = List.objects.create()
-        other_list = List.objects.create()
-        
-        self.client.post(f'/lists/{correct_list.id}/add_item', data={
-            'item_text': 'A new item for the correct list'
-        })
-        
-        self.assertEqual(Item.objects.count(), 1)
-        new_item = Item.objects.first()
-        self.assertEqual(new_item.text, 'A new item for the correct list')
-        self.assertEqual(new_item.list, correct_list)
-        self.assertNotEqual(new_item.list, other_list)
-    
-    def test_redirects_to_list_view(self):
-        """Тестируем редирект после создания нового элемента списка"""
-        
-        correct_list = List.objects.create()
-        other_list = List.objects.create()
-        response = self.client.post(f'/lists/{correct_list.id}/add_item', data={
-            'item_text': 'A new item for the correct list'
-        })
-        self.assertRedirects(response, f'/lists/{correct_list.id}/')

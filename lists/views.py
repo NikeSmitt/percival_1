@@ -13,11 +13,11 @@ def home_page(request):
 def view_list(request, pk: int):
     """Представление списка"""
     list_ = List.objects.get(id=pk)
-    context = {
-        'list': list_
-    }
+    if request.method == 'POST':
+        Item.objects.create(text=request.POST['item_text'], list=list_)
+        return redirect(f'/lists/{list_.id}/')
     
-    return render(request, 'lists/list.html', context)
+    return render(request, 'lists/list.html', {'list': list_})
 
 
 def new_list(request):
@@ -33,11 +33,3 @@ def new_list(request):
         error = 'You can\'t have an empty list item'
         return render(request, 'lists/home.html', {'error': error})
     return redirect(f'/lists/{list_.id}/')
-
-
-def add_item(request, list_id: int):
-    """Добавляем элемент"""
-    list_ = List.objects.get(id=list_id)
-    item_text = request.POST['item_text']
-    Item.objects.create(text=item_text, list=list_)
-    return redirect(f'/lists/{list_id}/')
