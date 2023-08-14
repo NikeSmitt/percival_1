@@ -1,0 +1,11 @@
+[Unit]
+Description=Gunicorn server for percival superlists
+
+[Service]
+Restart=on-failure
+User=www
+WorkingDirectory=/home/www/site/percival_TDD
+ExecStart=/home/www/site/percival_TDD/venv/bin/gunicorn --bind unix:/tmp/percival.socket superlists.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
