@@ -1,43 +1,17 @@
-import os
-import time
 import unittest
+from unittest import skip
 
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import tag
 
-from selenium import webdriver
 from selenium.webdriver import Keys
-from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
+
+from functional_tests.base import FunctionalTest
 
 
 @tag('functional')
-class NewVisitorTest(StaticLiveServerTestCase):
+class NewVisitorTest(FunctionalTest):
     """New visitor tests"""
-    
-    def setUp(self) -> None:
-        self.browser = NewVisitorTest.get_new_browser()
-        staging_server = os.environ.get('STAGING_SERVER')
-        if staging_server:
-            self.live_server_url = f'http://{staging_server}'
-    
-    def tearDown(self) -> None:
-        self.browser.quit()
-    
-    @staticmethod
-    def get_new_browser():
-        service = ChromeService(executable_path=ChromeDriverManager(version='114.0.5735.90').install())
-        options = webdriver.ChromeOptions()
-        # options.add_argument('--headless')
-        return webdriver.Chrome(service=service, options=options)
-    
-    def check_list_item_in_table(self, item_text):
-        # table = self.browser.find_element(By.ID, 'id_list_table')
-        table = WebDriverWait(self.browser, timeout=5).until(lambda x: x.find_element(By.ID, 'id_list_table'))
-        rows = table.find_elements(By.TAG_NAME, 'tr')
-        self.assertIn(item_text, [row.text for row in rows])
     
     def test_can_start_a_list_for_one_user(self):
         """Тест: начать список для одного пользователя"""
@@ -102,7 +76,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # чтобы никакая ## информация от Эдит не прошла через данные cookie и пр.
         
         self.browser.quit()
-        self.browser = NewVisitorTest.get_new_browser()
+        self.browser = FunctionalTest.get_new_browser()
         
         # Валера посещает домашнюю страницу. Нет никаких признаков списка Эдит
         self.browser.get(self.live_server_url)
@@ -126,22 +100,3 @@ class NewVisitorTest(StaticLiveServerTestCase):
         page_text = self.browser.find_element(By.TAG_NAME, 'body').text
         self.assertNotIn('Купить павлиньи перья', page_text)
         self.assertIn('Купить молоко', page_text)
-    
-    def test_layout_and_styling(self):
-        """Тест макета и стилевого оформления"""
-        # Эдит открывает домашнюю страницу
-        
-        self.browser.get(self.live_server_url)
-        self.browser.set_window_size(1024, 768)
-        
-        # Она замечает, что поле ввода аккуратно центрировано
-        input_box = self.browser.find_element(By.ID, 'id_new_item')
-        self.assertAlmostEqual(
-            input_box.location['x'] + input_box.size['width'] / 2,
-            512,
-            delta=10  # delta for 10 px
-        )
-
-
-if __name__ == '__main__':
-    unittest.main(warnings='ignore')
